@@ -253,6 +253,74 @@ Membuat topologi 5
             ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/add2e426-0a1a-4fa6-b803-29d43c93f1bf)
 
 ## NO 3
+- Node Yudhistira
+    - Menambahkan konfigurasi untuk zona `abimanyu.e11.com` ke dalam file 
+        ```bash
+        nano /etc/bind/named.conf.local
+        ```
+        ```bash
+        zone "abimanyu.e11.com" {
+            type master;
+            file "/etc/bind/jarkom/abimanyu.e11.com";
+        };
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/653317ff-40a1-41e2-8861-c0e86dab2b7f)
+    - Menyalin file db.local sebagai dasar untuk membuat konfigurasi zona baru
+        ```bash
+        cp /etc/bind/db.local /etc/bind/jarkom/abimanyu.e11.com
+        ```
+    - Edit file zona
+        ```bash
+        nano /etc/bind/jarkom/abimanyu.e11.com
+        ```
+        ```bash
+        ;
+        ; BIND data file for local loopback interface
+        ;
+        $TTL    604800
+        @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                    2         ; Serial
+                                604800         ; Refresh
+                                86400         ; Retry
+                                2419200         ; Expire
+                                604800 )       ; Negative Cache TTL
+        ;
+        @               IN      NS      abimanyu.e11.com.
+        @               IN      A       10.42.3.3       ; IP ABIMANYU
+        www             IN      CNAME   abimanyu.e11.com.
+        @               IN      AAAA    ::1
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d9ac4805-6c5f-4b49-b578-3455b637b659)
+    - Restart BIND9
+        ```bash
+        service bind9 restart
+        ```
+- Testing ke Nakula dan Sadewa
+    - Ubah nameserver menjadi IP Yudhistira
+        ```bash
+        nano /etc/resolv.conf
+        ```
+        ```bash
+        nameserver 10.42.2.2 # IP yudhistira
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d3d9f63b-6c96-40cc-8312-e2bb089aff92)
+    - Test ping
+        ```bash
+        ping abimanyu.e11.com -c 5
+        host -t A abimanyu.e11.com
+        ping www.abimanyu.e11.com
+        ```
+        - Nakula
+
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d7e0daac-4797-4544-bfb6-4be1824ac7f9)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d5f19f69-ece2-49ca-a54a-41bdc8b33c4f)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/f259f9f5-c639-4ef9-9cbc-4a39da3c19ac)
+
+        - Sadewa
+
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d870635c-58cd-40b9-a1da-148b4bef03c6)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/bf4683c4-cd3e-4b68-a868-41a29bc81eb1)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/1f3c5e1b-849b-4fb3-b297-e5acde9d775d)
 
 ## NO 4
 
