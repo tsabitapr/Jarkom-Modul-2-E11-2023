@@ -323,6 +323,48 @@ Membuat topologi 5
             ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/1f3c5e1b-849b-4fb3-b297-e5acde9d775d)
 
 ## NO 4
+- Node Yudhistira
+    - Mengedit file zona `abimanyu.e11.com`
+        ```bash
+        nano /etc/bind/jarkom/abimanyu.e11.com
+        ```
+        ```bash
+        ;
+        ; BIND data file for local loopback interface
+        ;
+        $TTL    604800
+        @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                    2         ; Serial
+                                604800         ; Refresh
+                                86400         ; Retry
+                                2419200         ; Expire
+                                604800 )       ; Negative Cache TTL
+        ;
+        @               IN      NS      abimanyu.e11.com.
+        @               IN      A       10.42.3.3       ; IP ABIMANYU
+        www             IN      CNAME   abimanyu.e11.com.
+        parikesit       IN      A       10.42.3.3       ; IP ABIMANYU
+        @               IN      AAAA    ::1
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/7626983f-15ff-4bb2-8510-2cf2af536352)
+    - Restart BIND9
+        ```bash
+        service bind9 restart
+        ```
+- Testing ke Nakula dan Sadewa
+    ```bash
+    ping parikesit.abimanyu.e11.com -c 5
+    host -t A parikesit.abimanyu.e11.com
+    ```
+    - Nakula
+
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/849543c8-bcb0-4d2d-8044-dbc32dc216e1)
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/231c0718-d89a-4e21-b22b-81ca2156b205)
+
+    - Sadewa
+
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/fd160e63-87e4-4e41-be93-06fd7541d9ae)
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/b304c6a6-8234-4aed-838a-c6152af6f839)
 
 ## NO 5
 
