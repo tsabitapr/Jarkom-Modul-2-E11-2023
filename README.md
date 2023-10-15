@@ -61,6 +61,118 @@ www.parikesit.abimanyu.yyy.com/js
 
 # Jawaban
 ## NO 1
+Membuat topologi 5
+
+![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/bfaee11b-9338-4fe5-8a54-518013d5e317)
+- Buat projek baru pada GNS3
+- Drag node NAT1 ke halaman
+- Drag node ubuntu-1 ke halaman
+- Ganti nama dan simbol ubuntu-1 menjadi router "Pandudewanata"
+- Drag 3 node switch ke halaman
+- Drag 8 node ubuntu-1 ke halaman
+- Gantu nama dan simbol ubuntu-1 menjadi "Nakula", "Sadewa", "Yudhistira", "Werkudara", "Prabukusuma", "Abimanyu", "Wisanggeni", dan "Arjuna"
+- Link setiap node sesuai dengan ketentuan topologi 5
+- Setting network masing-masing node sesuai dengan prefix kelompok (10.42)
+    - Pandudewanata
+        ```bash
+        auto eth0
+        iface eth0 inet dhcp
+
+        auto eth1
+        iface eth1 inet static
+            address 10.42.1.1
+            netmask 255.255.255.0
+
+        auto eth2
+        iface eth2 inet static
+            address 10.42.2.1
+            netmask 255.255.255.0
+
+        auto eth3
+        iface eth3 inet static
+            address 10.42.3.1
+            netmask 255.255.255.0
+        ```
+    - Nakula
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.1.2
+            netmask 255.255.255.0
+            gateway 10.42.1.1
+        ```
+    - Sadewa
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.1.3
+            netmask 255.255.255.0
+            gateway 10.42.1.1
+        ```
+    - Yudhistira
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.2.2
+            netmask 255.255.255.0
+            gateway 10.42.2.1
+        ```
+    - Werkudara
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.2.3
+            netmask 255.255.255.0
+            gateway 10.42.2.1
+        ```
+    - Prabukusuma
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.3.2
+            netmask 255.255.255.0
+            gateway 10.42.3.1
+        ```
+    - Abimanyu
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.3.3
+            netmask 255.255.255.0
+            gateway 10.42.3.1
+        ```
+    - Wisanggeni
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.3.4
+            netmask 255.255.255.0
+            gateway 10.42.3.1
+        ```
+    - Arjuna
+        ```bash
+        auto eth0
+        iface eth0 inet static
+            address 10.42.3.5
+            netmask 255.255.255.0
+            gateway 10.42.3.1
+        ```
+- Configurasi masing-masing node --> `nano /root/.bashrc`
+    - Pandudewanata
+        ```bash
+        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.42.0.0/16
+        echo nameserver 192.168.122.1 > /etc/resolv.conf
+        ```
+    - Node lainnya
+        ```bash
+        echo nameserver 192.168.122.1 > /etc/resolv.conf
+        ```
+- Testing ke Nakula dan Sadewa
+    ```bash
+    ping google.com
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/315c45fa-717c-40ba-ad88-0e92590a94bd)
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/cee570d7-3b41-42fb-96d2-9e0eeb2b4f76)    
 
 ## NO 2
 
