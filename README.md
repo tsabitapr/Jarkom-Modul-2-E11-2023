@@ -175,6 +175,82 @@ Membuat topologi 5
     ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/cee570d7-3b41-42fb-96d2-9e0eeb2b4f76)    
 
 ## NO 2
+- Node Yudhistira
+    - Install BIND9
+        ```bash
+        apt-get update
+        apt-get install bind9 -y
+        ```
+    - Menambahkan konfigurasi untuk zona `arjuna.e11.com` ke dalam file 
+        ```bash
+        nano /etc/bind/named.conf.local
+        ```
+        ```bash
+        zone "arjuna.e11.com" {
+            type master;
+            file "/etc/bind/jarkom/arjuna.e11.com";
+        };
+        ```
+    - Membuat directory baru untuk menyimpan file konfigurasi zona
+        ```bash
+        mkdir /etc/bind/jarkom
+        ```
+    - Menyalin file db.local sebagai dasar untuk membuat konfigurasi zona baru
+        ```bash
+        cp /etc/bind/db.local /etc/bind/jarkom/arjuna.e11.com
+        ```
+    - Edit file zona
+        ```bash
+        nano /etc/bind/jarkom/arjuna.e11.com
+        ```
+        ```bash
+        ;
+        ; BIND data file for local loopback interface
+        ;
+        $TTL    604800
+        @       IN      SOA     arjuna.e11.com. root.arjuna.e11.com. (
+                                    2         ; Serial
+                                604800         ; Refresh
+                                86400         ; Retry
+                                2419200         ; Expire
+                                604800 )       ; Negative Cache TTL
+        ;
+        @       IN      NS      arjuna.e11.com.
+        @       IN      A       10.42.3.5       ; IP ARJUNA
+        www     IN      CNAME   arjuna.e11.com.
+        @       IN      AAAA    ::1
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/b625adaa-0549-48d9-b859-fc802784d963)
+    - Restart BIND9
+        ```bash
+        service bind9 restart
+        ```
+- Testing ke Nakula dan Sadewa
+    - Ubah nameserver menjadi IP Yudhistira
+        ```bash
+        nano /etc/resolv.conf
+        ```
+        ```bash
+        nameserver 10.42.2.2 # IP yudhistira
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d3d9f63b-6c96-40cc-8312-e2bb089aff92)
+    - Test ping
+        ```bash
+        ping arjuna.e11.com -c 5
+        host -t A arjuna.e11.com
+        ping www.arjuna.e11.com
+        ```
+        
+        - Nakula
+
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2375b605-ae06-4fdf-bf1c-31481594ee58)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/950c4d10-76ca-419e-ac8e-9740c0531981)
+          
+        - Sadewa
+          
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/32663ebe-bda3-4ddd-87c7-d4b172ac9e37)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/c633f72f-478c-4e4b-a163-81e1225e886f)
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/add2e426-0a1a-4fa6-b803-29d43c93f1bf)
 
 ## NO 3
 
