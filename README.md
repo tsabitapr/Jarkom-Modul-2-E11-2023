@@ -367,6 +367,75 @@ Membuat topologi 5
         ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/b304c6a6-8234-4aed-838a-c6152af6f839)
 
 ## NO 5
+- Node Yudhistira
+    - Menambahkan konfigurasi untuk zona reverse di file
+        ```bash
+        nano /etc/bind/named.conf.local
+        ```
+        ```bash
+        zone "2.42.10.in-addr.arpa" {
+            type master;
+            file "/etc/bind/jarkom/2.42.10.in-addr.arpa";
+        };
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/f213a660-35b2-462a-82e6-f8f97806155d)
+    - Menduplikasi file db.local sebagai dasar untuk membuat konfigurasi zona reverse.
+        ```bash
+        cp /etc/bind/db.local /etc/bind/jarkom/2.42.10.in-addr.arpa
+        ```
+    - Edit file zona reverse
+        ```bash
+        nano /etc/bind/jarkom/2.42.10.in-addr.arpa
+        ```
+        ```bash
+        ;
+        ; BIND data file for local loopback interface
+        ;
+        $TTL    604800
+        @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                    2         ; Serial
+                                604800         ; Refresh
+                                86400         ; Retry
+                                2419200         ; Expire
+                                604800 )        ; Negative Cache TTL
+        ;
+        2.42.10.in-addr.arpa.   IN      NS      abimanyu.e11.com.
+        2                       IN      PTR     abimanyu.e11.com. ; byte ke4 yudhistira
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/a8422339-6486-4798-91d9-c787ecdf4aa0)
+    - Restart BIND9
+        ```bash
+        service bind9 restart
+        ```
+- Testing ke Nakula dan Sadewa
+    - Ubah nameserver agar sesuai dengan server DNS
+        ```bash
+        echo nameserver 192.168.122.1 > /etc/resolv.conf
+        ```
+    - Pastikan telah menginstall tools yang dibutuhkan
+        ```bash
+        apt-get update
+        apt-get install dnsutils
+        ```
+    - Kembalikan nameserver agar tersambung dengan Yudhistira
+        ```bash
+        nano /etc/resolv.conf
+        ```
+        ```bash
+        nameserver 10.42.2.2 # IP yudhistira
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d3d9f63b-6c96-40cc-8312-e2bb089aff92)
+    - Testing
+        ```bash
+        host -t PTR 10.42.2.2
+        ```
+        - Nakula
+
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/b24d8d4d-85bd-4049-ab67-02a91d779e96)
+
+        - Sadewa
+
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/6f5db2b6-9bce-4b47-a3df-600f130574a1)
 
 ## NO 6
 
