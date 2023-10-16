@@ -1,0 +1,3 @@
+# IP ABIMANYU
+lynx 10.42.3.3
+curl 10.42.3.3
