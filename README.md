@@ -806,7 +806,8 @@ Membuat topologi 5
     };
     ' > /etc/bind/named.conf.local
 
-    service bind9 stop
+    # setelah config werkudara:
+    # service bind9 stop
     ```
 
   - Werkudara
