@@ -534,5 +534,7 @@ Membuat topologi 5
 ## NO 20
 
 # Kendala
-- Lorem ipsum
-- Lorem ipsum
+- Tidak bisa ping website tetapi bisa ping menggunakan IP address
+    - Solusi = ganti jaringan (contoh = gagal saat menggunakan wifi, maka ganti menggunakan hostpot)
+- Gagal ping karena bind9 belum running
+    - Solusi = cek status `service bind9 status`, kalau tidak running maka `service bind9 start`. Lalu pastikan bind9 berjalan `service bind9 status`
