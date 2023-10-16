@@ -534,6 +534,8 @@ Membuat topologi 5
 ## NO 20
 
 # Kendala
+- Gagal drag ubuntu-1 yang sudah dibuat ke dalam halaman karena "docker not exist"
+    -  Solusi = buat hapus ubuntu-1, lalu buat ulang. Coba sampai bisa
 - Tidak bisa ping website tetapi bisa ping menggunakan IP address
     - Solusi = ganti jaringan (contoh = gagal saat menggunakan wifi, maka ganti menggunakan hostpot)
 - Gagal ping karena bind9 belum running
