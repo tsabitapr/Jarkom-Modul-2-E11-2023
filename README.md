@@ -983,7 +983,244 @@ Membuat topologi 5
 
         ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/0d25d708-8517-4ffa-acf6-6a30d8292712)
 
+- SCRIPT
+
+  - Yudhistira
+
+    ```bash
+    # nano /etc/bind/jarkom/abimanyu.e11.com
+    echo '
+    ;
+    ; BIND data file for local loopback interface
+    ;
+    $TTL    604800
+    @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                  2         ; Serial
+                             604800         ; Refresh
+                              86400         ; Retry
+                            2419200         ; Expire
+                             604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   abimanyu.e11.com.
+    parikesit       IN      A       10.42.3.3       ; IP ABIMANYU
+    ns1             IN      A       10.42.2.3       ; IP WERKUDARA
+    baratayuda      IN      NS      ns1
+    @               IN      AAAA    ::1
+    ' > /etc/bind/jarkom/abimanyu.e11.com
+    
+    # nano /etc/bind/named.conf.options
+    echo '
+    options {
+            directory "/var/cache/bind";
+    
+            // If there is a firewall between you and nameservers you want
+            // to talk to, you may need to fix the firewall to allow multiple
+            // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+    
+            // If your ISP provided one or more IP addresses for stable
+            // nameservers, you probably want to use them as forwarders.
+            // Uncomment the following block, and insert the addresses replacing
+            // the all-0s placeholder.
+    
+            // forwarders {
+            //      0.0.0.0;
+            // };
+    
+            //=====================================================================$
+            // If BIND logs error messages about the root key being expired,
+            // you will need to update your keys.  See https://www.isc.org/bind-keys
+            //=====================================================================$
+            // dnssec-validation auto;
+            allow-query{any;};
+    
+            auth-nxdomain no;    # conform to RFC1035
+            listen-on-v6 { any; };
+    };       
+    ' > /etc/bind/named.conf.options
+    
+    # nano /etc/bind/named.conf.local 
+    echo '
+    zone "arjuna.e11.com" { 
+        type master; 
+        file "/etc/bind/jarkom/arjuna.e11.com";
+    };
+    
+    zone "abimanyu.e11.com" {
+        type master;
+        # notify yes;
+        # also-notify { 10.42.2.3; }; // Masukan IP Werkudara
+        allow-transfer { 10.42.2.3; }; // Masukan IP Werkudara
+        file "/etc/bind/jarkom/abimanyu.e11.com";
+    };
+    
+    zone "2.42.10.in-addr.arpa" {
+        type master;
+        file "/etc/bind/jarkom/2.42.10.in-addr.arpa";
+    };
+    ' > /etc/bind/named.conf.local
+    
+    service bind9 restart
+    ```
+
+  - Werkudara
+
+    ```bash
+    #  nano /etc/bind/named.conf.options
+    echo '
+    options {
+            directory "/var/cache/bind";
+    
+            // If there is a firewall between you and nameservers you want
+            // to talk to, you may need to fix the firewall to allow multiple
+            // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+    
+            // If your ISP provided one or more IP addresses for stable
+            // nameservers, you probably want to use them as forwarders.
+            // Uncomment the following block, and insert the addresses replacing
+            // the all-0s placeholder.
+    
+            // forwarders {
+            //      0.0.0.0;
+            // };
+    
+            //=====================================================================$
+            // If BIND logs error messages about the root key being expired,
+            // you will need to update your keys.  See https://www.isc.org/bind-keys
+            //=====================================================================$
+            // dnssec-validation auto;
+            allow-query{any;};
+    
+            auth-nxdomain no;    # conform to RFC1035
+            listen-on-v6 { any; };
+        };       
+    ' > /etc/bind/named.conf.options
+    
+    # nano /etc/bind/named.conf.local
+    echo '
+    zone "abimanyu.e11.com" {
+        type slave;
+        masters { 10.42.2.2; }; // Masukan IP Yudhistira
+        file "/var/lib/bind/abimanyu.e11.com";
+    };
+    
+    zone "baratayuda.abimanyu.e11.com" {
+        type master;
+        file "/etc/bind/baratayuda/baratayuda.abimanyu.e11.com";
+    };
+    ' > /etc/bind/named.conf.local
+    
+    # buat direktori
+    mkdir /etc/bind/baratayuda
+    
+    cp /etc/bind/db.local /etc/bind/delegasi/baratayuda.abimanyu.e11.com
+    
+    # nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    echo '
+    ;
+    ; BIND data file for subdomain baratayuda.abimanyu.e11.com
+    ;ping
+    $TTL    604800
+    @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
+                                  2         ; Serial
+                             604800         ; Refresh
+                              86400         ; Retry
+                            2419200         ; Expire
+                             604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      baratayuda.abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   baratayuda.abimanyu.e11.com.
+    ' > /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    
+    service bind9 restart
+    ```
+
+  - Nakula dan Sadewa
+
+    ```bash
+    ping baratayuda.abimanyu.e11.com -c 5
+    ping baratayuda.abimanyu.e11.com
+    ping www.baratayuda.abimanyu.e11.com
+    ```
+    
 ## NO 8
+- Node Werkudara
+    - Edit file konfigurasi untuk subdomain `baratayuda.abimanyu.e11.com`:
+        ```bash
+        nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+        ```
+        ```bash
+        ;
+        ; BIND data file for subdomain baratayuda.abimanyu.e11.com
+        ;ping
+        $TTL    604800
+        @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
+                                    2         ; Serial
+                                604800         ; Refresh
+                                86400         ; Retry
+                                2419200         ; Expire
+                                604800 )       ; Negative Cache TTL
+        ;
+        @               IN      NS      baratayuda.abimanyu.e11.com.
+        @               IN      A       10.42.3.3       ; IP ABIMANYU
+        www             IN      CNAME   baratayuda.abimanyu.e11.com.
+        rjp             IN      A       10.42.3.3       ; IP ABIMANYU
+        www.rjp         IN      CNAME   rjp.baratayuda.abimanyu.e11.com.
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2be42eed-e8f4-4437-a562-b6fecec7239f)
+    - Restart service BIND9 untuk mengaplikasikan perubahan:
+        ```bash
+            service bind9 restart
+        ```
+
+- Testing di Node Nakula dan Sadewa
+    ```bash
+    ping rjp.baratayuda.abimanyu.e11.com
+    ```
+
+    -  Nakula
+
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d83e5335-5045-40ed-a091-cb508a4ff817)
+
+    - Sadewa
+
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/beef1e3b-193d-4268-9f76-8bb8f0298a27)
+
+- SCRIPT
+
+  - Werkudara
+
+    ```bash
+    # nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    echo '
+    ;
+    ; BIND data file for subdomain baratayuda.abimanyu.e11.com
+    ;ping
+    $TTL    604800
+    @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
+                                  2         ; Serial
+                             604800         ; Refresh
+                              86400         ; Retry
+                            2419200         ; Expire
+                             604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      baratayuda.abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   baratayuda.abimanyu.e11.com.
+    rjp             IN      A       10.42.3.3       ; IP ABIMANYU
+    www.rjp         IN      CNAME   rjp.baratayuda.abimanyu.e11.com.
+    ' > /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    
+    service bind9 restart
+    ```
+
+  - Nakula dan Sadewa
+
+    ```bash
+    ping rjp.baratayuda.abimanyu.e11.com
+    ```
 
 ## NO 9
 
