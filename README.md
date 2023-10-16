@@ -438,6 +438,72 @@ Membuat topologi 5
             ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/6f5db2b6-9bce-4b47-a3df-600f130574a1)
 
 ## NO 6
+- Node Yudhistira
+    - Edit file konfigurasi DNS:
+        ```bash
+        nano /etc/bind/named.conf.local
+        ```
+        ```bash
+        zone "abimanyu.e11.com" {
+            type master;
+            notify yes;
+            also-notify { 10.42.2.3; }; // Masukan IP Werkudara
+            allow-transfer { 10.42.2.3; }; // Masukan IP Werkudara
+            file "/etc/bind/jarkom/abimanyu.e11.com";
+        };
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/693309a3-1ba4-48e4-8700-c1835efddbc2)
+
+- Node Werkudara
+    - Update dan install BIND9:
+        ```bash
+        apt-get update
+        apt-get install bind9 -y
+        ```
+    - Edit file konfigurasi DNS:
+        ```bash
+        nano /etc/bind/named.conf.local
+        ```
+        ```bash
+        zone "abimanyu.e11.com" {
+            type slave;
+            masters { 10.42.2.2; }; // Masukan IP Yudhistira
+            file "/var/lib/bind/abimanyu.e11.com";
+        };
+        ```
+        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/ebda66d7-ed98-4cfc-a60e-27f4bc1fe64f)
+    - Restart BIND9 untuk menerapkan perubahan
+        ```bash
+        service bind9 restart
+        ```
+- Testing
+    - Node Yudhistira
+        - Matikan BIND9 di Yudhistira untuk mensimulasikan adanya gangguan pada DNS Master
+            ```bash
+            service bind9 stop
+            ```
+    - Node Nakula dan Sadewa
+        - Masukkan nameserver Werkudara
+            ```bash
+            nano /etc/resolv.conf
+            ```
+            ```bash
+            nameserver 10.42.2.2 # IP YUDHISTIRA
+            nameserver 10.42.2.3 # IP werkudara
+            # nameserver 192.168.122.1
+            ```
+            ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/36c36061-2031-4d4f-a418-a8dc4785a79c)
+        - Test ping
+            ```bash
+            ping abimanyu.e11.com -c 5
+            ```
+            - Nakula
+
+                ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/6a4bf874-9203-4961-a7a1-9020b05b9f2c)
+
+            - Sadewa
+
+                ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/bc559fa7-ee34-46d0-9ebf-3480a1e63e40)
 
 ## NO 7
 
