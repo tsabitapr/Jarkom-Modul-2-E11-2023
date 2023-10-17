@@ -1967,11 +1967,301 @@ Untuk soal nomor 11 dibutuhkan installasi apache2 di node yudhistira dan abimany
 
 ## NO 17
 
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # download dan unzip file
+    wget -O '/var/www/rjp.baratayuda.abimanyu.e11.com.zip' 'https://    drive.usercontent.google.com/download?    id=1pPSP7yIR05JhSFG67RVzgkb-VcW9vQO6'
+    unzip -o /var/www/rjp.baratayuda.abimanyu.e11.com.zip -d /var/    www/
+    mv /var/www/rjp.baratayuda.abimanyu.yyy.com /var/www/rjp.   baratayuda.abimanyu.e11
+    rm -rf /var/www/rjp.baratayuda.abimanyu.e11.com.zip
+
+    # nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.e11.com.conf
+    echo -e '
+    <VirtualHost *:14000 *:14400>
+    	ServerAdmin webmaster@localhost
+    	DocumentRoot /var/www/rjp.baratayuda.abimanyu.e11
+
+    	ServerName rjp.baratayuda.abimanyu.e11.com
+    	ServerAlias www.rjp.baratayuda.abimanyu.e11.com
+
+    	ErrorDocument 404 /error/404.html
+        ErrorDocument 403 /error/403.html
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/rjp.baratayuda.abimanyu.e11.com.conf
+
+    # nano /etc/apache2/ports.conf
+    # tambahin listen 14000 dan 14400
+    echo -e '
+    # If you just change the port or add more ports here, you will    likely also
+    # have to change the VirtualHost statement in
+    # /etc/apache2/sites-enabled/000-default.conf
+
+    Listen 80
+    Listen 14000
+    Listen 14400
+
+    <IfModule ssl_module>
+            Listen 443
+    </IfModule>
+
+    <IfModule mod_gnutls.c>
+            Listen 443
+    </IfModule>
+
+    # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+    ' > /etc/apache2/ports.conf
+
+    a2ensite rjp.baratayuda.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - Download resource yang perlu ditampilkan dengan code di bawah, file ini akan digunakan juga pada nomor 20.
+      ```bash
+      wget -O '/var/www/rjp.baratayuda.abimanyu.e11.com.zip' 'https://    drive.usercontent.google.com/download?    id=1pPSP7yIR05JhSFG67RVzgkb-VcW9vQO6'
+      unzip -o /var/www/rjp.baratayuda.abimanyu.e11.com.zip -d /var/    www/
+      mv /var/www/rjp.baratayuda.abimanyu.yyy.com /var/www/rjp.   baratayuda.abimanyu.e11
+      rm -rf /var/www/rjp.baratayuda.abimanyu.e11.com.zip
+      ```
+    - Lakukan konfigurasi sites pada file `/etc/apache2/sites-available/rjp.baratayuda.abimanyu.e11.com.conf` dimana DocumentRoot tempat menyimpan file yang di download adalah `/var/www/rjp.baratayuda.abimanyu.e11`. Atur portnya 14000 dan 14400 yaitu pada `<VirtualHost *:14000 *:14400>`.
+    - Tambahkan `listen port 14000` dan `listen port 14400` pada `/etc/apache2/ports.conf`
+    - Aktifkan konfigurasi website
+      ```bash
+      a2ensite rjp.baratayuda.abimanyu.e11.com.conf
+      ```
+    - Restart apache2
+
+- TESTING DI CLIENT
+
+  - NAKULA & SADEWA
+
+    - Script
+      ```bash
+      lynx www.rjp.baratayuda.abimanyu.e11.com:14000
+      lynx www.rjp.baratayuda.abimanyu.e11.com:14400
+      lynx www.rjp.baratayuda.abimanyu.e11.com:8001
+      ```
+    - port 14000 dan port 14400
+      <br>
+      `lynx www.rjp.baratayuda.abimanyu.e11.com:14000`
+      `lynx www.rjp.baratayuda.abimanyu.e11.com:14400`
+      <br>
+      ![port14000](./img-output/no17_port14000or14400.png)
+    - port selain 14000 dan 14400
+      <br>
+      `lynx www.rjp.baratayuda.abimanyu.e11.com:8001`
+      <br>
+      ![wrongport](./img-output/no17_salahport.png)
+
 ## NO 18
+
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.e11.com.conf
+    echo -e '
+    <VirtualHost *:14000 *:14400>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/rjp.baratayuda.abimanyu.e11
+
+      ServerName rjp.baratayuda.abimanyu.e11.com
+      ServerAlias www.rjp.baratayuda.abimanyu.e11.com
+
+      <Directory /var/www/rjp.baratayuda.abimanyu.e11>
+              AuthType Basic
+              AuthName "Restricted Content"
+              AuthUserFile /etc/apache2/.htpasswd
+              Require valid-user
+      </Directory>
+
+      ErrorDocument 404 /error/404.html
+      ErrorDocument 403 /error/403.html
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/rjp.baratayuda.abimanyu.e11.com.conf
+
+    # setting auth
+    # username : Wayang
+    # password : baratayudae11
+    htpasswd -c -b /etc/apache2/.htpasswd Wayang baratayudae11
+
+    a2ensite rjp.baratayuda.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - Update konfigurasi website dengan menambahkan:
+      ```bash
+      <Directory /var/www/rjp.baratayuda.abimanyu.e11>
+              AuthType Basic
+              AuthName "Restricted Content"
+              AuthUserFile /etc/apache2/.htpasswd
+              Require valid-user
+      </Directory>
+      ```
+    - Tambahkan autentikasi dengan menggunakan command htpasswd. Lalu untuk -c adalah created dan -b yang merupakan bcrypt agar password yang kita isi akan dilakukan hash terlebih dahulu sebelum disimpan.
+      ```bash
+      htpasswd -c -b /etc/apache2/.htpasswd Wayang baratayudae11
+      ```
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx rjp.baratayuda.abimanyu.e11.com:14000
+      lynx rjp.baratayuda.abimanyu.e11.com:14400
+      ```
+    - Output
+      <br>
+      ![18_1](./img-output/no18_1.png)
+      <br>
+      ![18_2](./img-output/no18_2.png)
+      <br>
+      ![18_3](./img-output/no18_3.png)
+      <br>
+      ![18_4](./img-output/no18_4.png)
 
 ## NO 19
 
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # nano /etc/apache2/sites-available/000-default.conf
+    echo -e '
+    <VirtualHost *:80>
+        ServerAdmin webmaster@abimanyu.e11.com
+        DocumentRoot /var/www/html
+
+        Redirect / http://www.abimanyu.e11.com/
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/000-default.conf
+
+    apache2ctl configtest
+    service apache2 restart
+    ```
+
+    - Agar saat mengakses IP dari abimanyu dapat otomatis dialihkan ke www.abimanyu.e11.com, maka perlu menggunakan file Redirect yang akan mengarahkan kepada file yang kita inginkan. Kita akan memasukkannya ke dalam file konfigurasi 000-default.conf karena merupakan default dari suatu service apache.
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx 10.42.3.3
+      curl 10.42.3.3
+      ```
+    - `lynx 10.42.3.3`
+      <br>
+      ![19-1](./img-output/no19_1.png)
+      <br>
+      ![19-2](./img-output/no19_2.png)
+      <br>
+    - `curl 10.42.3.3`
+      <br>
+      ![19-3](./img-output/no19_curl.png)
+
 ## NO 20
+
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    a2enmod rewrite
+
+    # buat file .htaccess
+    echo -e '
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/public/images/(.*)(abimanyu)(.*\.(png|jpg))
+    RewriteCond %{REQUEST_URI} !/public/images/abimanyu.png
+    RewriteRule abimanyu http://parikesit.abimanyu.e11.com/public/images/abimanyu.png$1 [L,R=301]
+    ' > /var/www/parikesit.abimanyu.e11/.htaccess
+
+    # nano /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+    # tambah AllowOverride All
+    echo -e '
+    <VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/parikesit.abimanyu.e11
+
+      ServerName parikesit.abimanyu.e11.com
+      ServerAlias www.parikesit.abimanyu.e11.com
+
+      <Directory /var/www/parikesit.abimanyu.e11/public>
+              Options +Indexes
+      </Directory>
+
+      <Directory /var/www/parikesit.abimanyu.e11/secret>
+              Options -Indexes
+      </Directory>
+
+      <Directory /var/www/parikesit.abimanyu.e11>
+              Options +FollowSymLinks -Multiviews
+              AllowOverride All
+      </Directory>
+
+      Alias "/public" "/var/www/parikesit.abimanyu.e11/public"
+      Alias "/secret" "/var/www/parikesit.abimanyu.e11/secret"
+      Alias "/js" "/var/www/parikesit.abimanyu.e11/public/js"
+
+      ErrorDocument 404 /error/404.html
+      ErrorDocument 403 /error/403.html
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - `a2enmod rewrite` untuk rewrite modul
+    - Buat file `.htaccess` pada direktori `/var/www/parikesit.abimanyu.e11/` untuk melakukan rewrite terhadap direktori `parikesit.abimanyu.e11.com` :
+      ```bash
+      RewriteEngine On
+      RewriteCond %{REQUEST_URI} ^/public/images/(.*)(abimanyu)(.*\.(png|jpg))
+      RewriteCond %{REQUEST_URI} !/public/images/abimanyu.png
+      RewriteRule abimanyu http://parikesit.abimanyu.e11.com/public/images/abimanyu.png$1 [L,R=301]
+      ```
+    - Update konfigurasi website pada `/etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf` dengan:
+      ```bash
+      <Directory /var/www/parikesit.abimanyu.e11>
+          Options +FollowSymLinks -Multiviews
+          AllowOverride All
+      </Directory>
+      ```
+      - Gunakan `AllowOverride All` untuk mengkonfigurasi nya dengan `.htaccess`
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      # file gambar format png
+      lynx parikesit.abimanyu.e11.com/public/images/ini-abimanyu.png
+      # file gambar format jpg
+      lynx parikesit.abimanyu.e11.com/public/images/abimanyukeren.jpg
+      ```
+    - Output
+      <br>
+      ![20-1](./img-output/no20_1.png)
+      <br>
+      ![20-1](./img-output/no20_2.png)
+      <br>
+      ![20-1](./img-output/no20_3.png)
 
 # Kendala
 
@@ -1981,3 +2271,5 @@ Untuk soal nomor 11 dibutuhkan installasi apache2 di node yudhistira dan abimany
   - Solusi = ganti jaringan (contoh = gagal saat menggunakan wifi, maka ganti menggunakan hostpot)
 - Gagal ping karena bind9 belum running
   - Solusi = cek status `service bind9 status`, kalau tidak running maka `service bind9 start`. Lalu pastikan bind9 berjalan `service bind9 status`
+- Tidak teliti sehingga banyak typo yang menyebabkan konfigurasi salah
+- Tidak melihat ada resource karena ditaruh di paling bawah halaman soal, baru lihat saat hari terakhir praktikum
