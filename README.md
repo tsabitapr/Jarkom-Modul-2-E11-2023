@@ -1237,6 +1237,8 @@ Membuat topologi 5
 
 ## NO 9
 
+Untuk soal no 9 dan nomor selanjutnya, node arjuna membutuhkan installasi nginx, node worker membutuhkan installasi nginx, php, wget, dan unzip, node client membutuhkan installasi lynx. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
+
 - ARJUNA (LOAD-BALANCER)
 
   - Script
@@ -1276,7 +1278,6 @@ Membuat topologi 5
     nginx -t
     ```
 
-    - Untuk soal no 9, node arjuna membutuhkan installasi nginx, jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi nginx lagi.
     - Start nginx dan cek statusnya.
       ```bash
       service nginx start
@@ -1356,8 +1357,7 @@ Membuat topologi 5
     nginx -t
     ```
 
-    - Untuk soal no 9 dan nomor selanjutnya, node worker membutuhkan installasi nginx, php, wget, dan unzip. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
-    - Download resource yang perlu ditampilkan dengan, file ini juga akan digunakan untuk soal nomor 10:
+    - Download resource yang perlu ditampilkan dengan code di bawah, file ini juga akan digunakan untuk soal nomor 10:
       ```bash
       wget -O '/var/www/arjuna.e11.com.zip' 'https://drive.   usercontent.google.com/download?  id=17tAM_XDKYWDvF-JJix1x7txvTBEax7vX'
       unzip -o /var/www/arjuna.e11.com.zip -d /var/www/
@@ -1379,8 +1379,11 @@ Membuat topologi 5
   <br>
 
 - TESTING DI CLIENT
+
   - NAKULA & SADEWA
+
     - Script
+
       ```bash
       # simpan di bashrc
       # apt-get install lynx -y
@@ -1393,7 +1396,7 @@ Membuat topologi 5
       # arjuna
       lynx http://arjuna.e11.com
       ```
-      - Diperlukan installasi lynx untuk menampilkan output yang diinginkan. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
+
       - Output node arjuna akan berganti-ganti antara ketiga worker
 
       - Prabukusuma
@@ -1419,17 +1422,548 @@ Membuat topologi 5
 
 ## NO 10
 
+- ARJUNA (LOAD-BALANCER)
+
+  - Script
+
+    ```bash
+    service nginx start
+
+    echo 'upstream worker {
+      server 10.42.3.2:8001; # IP Prabukusuma
+      server 10.42.3.3:8002; # IP Abimanyu
+      server 10.42.3.4:8003; # IP Wisanggeni
+    }
+
+    server {
+      listen 80;
+      server_name arjuna.e11.com www.arjuna.e11.com;
+
+      location / {
+        proxy_pass http://worker;
+      }
+    }
+    ' > /etc/nginx/sites-available/loadb-jarkom
+
+    # simpan symlink
+    ln -s /etc/nginx/sites-available/loadb-jarkom /etc/nginx/   sites-enabled/loadb-jarkom
+
+    rm -rf /etc/nginx/sites-enabled/default
+
+    service nginx restart
+    nginx -t
+    ```
+
+    - Lakukan update port pada IP masing-masing worker di `/etc/nginx/sites-available/loadb-jarkom` dengan code di atas, pada soal ini kelompok kami memilih port sebagai berikut:
+      ```
+      port 8001 --> Prabukusuma
+      port 8002 --> Abimanyu
+      port 8003 --> Wisanggeni
+      ```
+
+- PRABUKUSUMA, ABIMANYU, WISANGGENI (WORKER)
+
+  - Script
+
+    ```bash
+    service php7.0-fpm start
+    # nano /etc/nginx/sites-available/jarkom
+    echo '
+     server {
+
+     	listen 800X; # ganti sesuai port worker
+
+     	root /var/www/jarkom;
+
+     	index index.php index.html index.htm index.nginx-debian.html;
+     	server_name _;
+     	location / {
+     			try_files $uri $uri/ /index.php?$query_string;
+     	}
+
+     	# pass PHP scripts to FastCGI server
+     	location ~ \.php$ {
+     	        include snippets/fastcgi-php.conf;
+     	        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+     	}
+
+        location ~ /\.ht {
+     			deny all;
+     	}
+
+     	error_log /var/log/nginx/jarkom_error.log;
+     	access_log /var/log/nginx/jarkom_access.log;
+     }
+    ' > /etc/nginx/sites-available/jarkom
+
+
+    # buat symlink
+    ln -s /etc/nginx/sites-available/jarkom /etc/nginx/   sites-enabled/jarkom
+
+    rm -rf /etc/nginx/sites-enabled/default
+
+    service nginx restart
+    nginx -t
+    ```
+
+    - Lakukan update port pada IP masing-masing worker di `/etc/nginx/sites-available/jarkom` dengan code di atas
+    - Pada konfigurasi masing-masing worker, ubah bagian `listen 800X;` sesuai dengan port yang worker tersebut.
+      <br>
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      # prabukusuma
+      lynx http://10.42.3.2:8001
+      # abimanyu
+      lynx http://10.42.3.3:8002
+      # wisanggeni
+      lynx http://10.42.3.4:8003
+      ```
+    - Prabukusuma
+      <br>
+      `lynx http://10.42.3.2:8001`
+      <br>
+      ![prabukusuma10](./img-output/no10_prabukusuma.png)
+    - Abimanyu
+      <br>
+      `lynx http://10.42.3.3:8002`
+      <br>
+      ![abimanyu10](./img-output/no10_abimanyu.png)
+    - Wisanggeni
+      <br>
+      `lynx http://10.42.3.4:8003`
+      <br>
+      ![abimanyu10](./img-output/no10_wisanggeni.png)
+
 ## NO 11
+
+Untuk soal nomor 11 dibutuhkan installasi apache2 di node yudhistira dan abimanyu. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
+
+- YUDHISTIRA
+
+  - Script
+
+    ```bash
+    # simpan di bashrc
+    # apt-get update
+    # apt-get install apache2 -y
+
+    service apache2 start
+
+    # pastikan bind sesuai
+    # nano /etc/bind/jarkom/abimanyu.e11.com
+    echo '
+    ;
+    ; BIND data file for local loopback interface
+    ;
+    $TTL    604800
+    @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                  2         ; Serial
+                            604800         ; Refresh
+                              86400         ; Retry
+                            2419200         ; Expire
+                            604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   abimanyu.e11.com.
+    parikesit       IN      A       10.42.3.3       ; IP ABIMANYU
+    ns1             IN      A       10.42.2.3       ; IP WERKUDARA
+    baratayuda      IN      NS      ns1
+    @               IN      AAAA    ::1
+    ' > /etc/bind/jarkom/abimanyu.e11.com
+
+    service bind9 restart
+    ```
+
+    - Pastikan konfigurasi bind website abimanyu sudah sesuai
+    - Restart bind9 setiap melakukan perubahan pada konfigurasi
+
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # simpan di bashrc
+    # apt-get update
+    # apt-get install apache2 -y
+    # apt-get install php -y
+
+    # download dan unzip file
+    wget -O '/var/www/abimanyu.e11.com.zip' 'https://drive.   usercontent.google.com/download?  id=1a4V23hwK9S7hQEDEcv9FL14UkkrHc-Zc'
+    unzip -o /var/www/abimanyu.e11.com.zip -d /var/www/
+    mv /var/www/abimanyu.yyy.com /var/www/abimanyu.e11
+    rm -rf /var/www/abimanyu.e11.com.zip
+
+    service apache2 start
+    service php7.0-fpm start
+
+    cp /etc/apache2/sites-available/000-default.conf /etc/apache2/    sites-available/abimanyu.e11.com.conf
+
+    rm /etc/apache2/sites-available/000-default.conf
+
+    # nano /etc/apache2/sites-available/abimanyu.e11.com.conf
+    echo -e '
+    <VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/abimanyu.e11
+
+      ServerName abimanyu.e11.com
+      ServerAlias www.abimanyu.e11.com
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/abimanyu.e11.com.conf
+
+    a2ensite abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - Download resource yang perlu ditampilkan dengan code di bawah, file ini akan digunakan juga pada nomor 12.
+      ```bash
+      wget -O '/var/www/abimanyu.e11.com.zip' 'https://drive.   usercontent.google.com/download?  id=1a4V23hwK9S7hQEDEcv9FL14UkkrHc-Zc'
+      unzip -o /var/www/abimanyu.e11.com.zip -d /var/www/
+      mv /var/www/abimanyu.yyy.com /var/www/abimanyu.e11
+      rm -rf /var/www/abimanyu.e11.com.zip
+      ```
+    - Lakukan konfigurasi sites pada file `/etc/apache2/sites-available/abimanyu.e11.com.conf` dimana DocumentRoot tempat menyimpan file yang di download adalah `/var/www/abimanyu.e11`
+    - Aktifkan konfigurasi website
+      ```bash
+      a2ensite abimanyu.e11.com.conf
+      ```
+    - Restart apache2
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx abimanyu.e11.com
+      ```
+      Output:
+      <br>
+      ![soal11](./img-output/no11.png)
 
 ## NO 12
 
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # nano /etc/apache2/sites-available/abimanyu.e11.com.conf
+    echo -e '<VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/abimanyu.e11
+
+      ServerName abimanyu.e11.com
+      ServerAlias www.abimanyu.e11.com
+
+      <Directory /var/www/abimanyu.e11/index.php/home>
+              Options +Indexes
+      </Directory>
+
+      Alias "/home" "/var/www/abimanyu.e11/index.php/home"
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>' > /etc/apache2/sites-available/abimanyu.e11.com.    conf
+
+    service apache2 restart
+    ```
+
+    - Dapat menggunakan `Directory Alias` yaitu dengan menambahkan code berikut pada file `/etc/apache2/sites-available/abimanyu.e11.com.conf`
+
+      ```bash
+      <Directory /var/www/abimanyu.e11/index.php/home>
+              Options +Indexes
+      </Directory>
+
+      Alias "/home" "/var/www/abimanyu.e11/index.php/home"
+      ```
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx abimanyu.e11.com/home
+      curl abimanyu.e11.com/home
+      ```
+    - `lynx abimanyu.e11.com/home`
+      <br>
+      ![abimanyu12](./img-output/no12.png)
+    - `curl abimanyu.e11.com/home`
+      <br>
+      ![abimanyu12curl](./img-output/no12_curl.png)
+
 ## NO 13
+
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # download dan unzip file
+    wget -O '/var/www/parikesit.abimanyu.e11.com.zip' 'https://drive.usercontent.google.com/download?id=1LdbYntiYVF_NVNgJis1GLCLPEGyIOreS'
+    unzip -o /var/www/parikesit.abimanyu.e11.com.zip -d /var/www/
+    mv /var/www/parikesit.abimanyu.yyy.com /var/www/parikesit.abimanyu.e11
+    rm -rf /var/www/parikesit.abimanyu.e11.com.zip
+
+    # nano /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+    echo -e '
+    <VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/parikesit.abimanyu.e11
+
+      ServerName parikesit.abimanyu.e11.com
+      ServerAlias www.parikesit.abimanyu.e11.com
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+
+    a2ensite parikesit.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - Download resource yang perlu ditampilkan dengan code di bawah, file ini akan digunakan juga sampai nomor 16.
+      ```bash
+      wget -O '/var/www/parikesit.abimanyu.e11.com.zip' 'https://drive.usercontent.google.com/download?id=1LdbYntiYVF_NVNgJis1GLCLPEGyIOreS'
+      unzip -o /var/www/parikesit.abimanyu.e11.com.zip -d /var/www/
+      mv /var/www/parikesit.abimanyu.yyy.com /var/www/parikesit.abimanyu.e11
+      rm -rf /var/www/parikesit.abimanyu.e11.com.zip
+      ```
+    - Lakukan konfigurasi sites pada file `/etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf` dimana DocumentRoot tempat menyimpan file yang di download adalah `/var/www/parikesit.abimanyu.e11`
+    - Aktifkan konfigurasi website
+      ```bash
+      a2ensite parikesit.abimanyu.e11.com.conf
+      ```
+    - Restart apache2
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx parikesit.abimanyu.e11.com
+      curl parikesit.abimanyu.e11.com
+      ```
+    - `lynx parikesit.abimanyu.e11.com`
+      <br>
+      ![parikesit13](./img-output/no13.png)
+    - `curl parikesit.abimanyu.e11.com`
+      <br>
+      ![parikesit13curl](./img-output/no13_curl.png)
 
 ## NO 14
 
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    #  buat folder /secret
+    mkdir /var/www/parikesit.abimanyu.e11/secret
+
+    echo -e '
+    <VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/parikesit.abimanyu.e11
+      ServerName parikesit.abimanyu.e11.com
+      ServerAlias www.parikesit.abimanyu.e11.com
+
+      <Directory /var/www/parikesit.abimanyu.e11/public>
+              Options +Indexes
+      </Directory>
+
+      <Directory /var/www/parikesit.abimanyu.e11/secret>
+              Options -Indexes
+      </Directory>
+
+      Alias "/public" "/var/www/parikesit.abimanyu.e11/public"
+      Alias "/secret" "/var/www/parikesit.abimanyu.e11/secret"
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - buat directory `/secret` pada `/var/www/parikesit.abimanyu.e11/`
+    - Update konfigurasi website pada `/etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf`:
+
+      ```bash
+      <Directory /var/www/parikesit.abimanyu.e11/public>
+              Options +Indexes
+      </Directory>
+
+      <Directory /var/www/parikesit.abimanyu.e11/secret>
+              Options -Indexes
+      </Directory>
+
+      Alias "/public" "/var/www/parikesit.abimanyu.e11/public"
+      Alias "/secret" "/var/www/parikesit.abimanyu.e11/secret"
+      ```
+
+      Karena kita ingin mengizinkan public agar dapat melakukan directory listing maka gunakan Options +Indexes. Sedangkan agar suatu folder tidak dapat di akses, maka gunakan Option -Indexes.
+
+    - Restart apache2
+
+- TESTING DI CLIENT
+
+  - NAKULA & SADEWA
+
+    - Script
+      ```bash
+      lynx parikesit.abimanyu.e11.com/public
+      lynx parikesit.abimanyu.e11.com/secret
+      ```
+    - `lynx parikesit.abimanyu.e11.com/public`
+      <br>
+      ![parikesitpublic14_1](./img-output/no14_public1.png)
+      <br>
+      ![parikesitpublic14_2](./img-output/no14_public2.png)
+
+    - `lynx parikesit.abimanyu.e11.com/secret`
+      <br>
+      ![parikesitsecret14_1](./img-output/no14_secret1.png)
+      <br>
+      ![parikesitsecret14_2](./img-output/no14_secret2.png)
+      <br>
+      ![parikesitsecret14_2](./img-output/no14_secret3.png)
+
 ## NO 15
 
+- ABIMANYU
+
+  - Script
+
+    ```bash
+    # nano /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+    echo -e '
+    <VirtualHost *:80>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/parikesit.abimanyu.e11
+      ServerName parikesit.abimanyu.e11.com
+      ServerAlias www.parikesit.abimanyu.e11.com
+
+      <Directory /var/www/parikesit.abimanyu.e11/public>
+              Options +Indexes
+      </Directory>
+
+      <Directory /var/www/parikesit.abimanyu.e11/secret>
+              Options -Indexes
+      </Directory>
+
+      Alias "/public" "/var/www/parikesit.abimanyu.e11/public"
+      Alias "/secret" "/var/www/parikesit.abimanyu.e11/secret"
+
+      ErrorDocument 404 /error/404.html
+      ErrorDocument 403 /error/403.html
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+    ' > /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+
+    service apache2 restart
+    ```
+
+    - Update konfigurasi website dengan menambahkan code berikut pada `/etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf`:
+      ```bash
+      ErrorDocument 404 /error/404.html
+      ErrorDocument 403 /error/403.html
+      ```
+      Untuk melakukan kustomisasi page html error, kita bisa mendapatkan dari file resources yang telah diberikan yaitu pada folder `parikesit.abimanyu.e11.com/public/error/` yang terdapat 2 file yaitu `403.html` dan `404.html`.
+    - `ErrorDocument` berfungsi untuk melakukan redirect terhadap file yang diinginkan ketika mendapatkan error saat mengakses domain yang telah ada sebelumnya.
+    - Restart apache2
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      lynx parikesit.abimanyu.e11.com/iniFIXerror
+      lynx parikesit.abimanyu.e11.com/secret
+      ```
+    - Error 404
+      <br>
+      ![error404-15](./img-output/no15_404_1.png)
+      <br>
+      ![error404-15](./img-output/no15_404_2.png)
+    - Error 403
+      <br>
+      ![error403-15](./img-output/no15_403_1.png)
+      <br>
+      ![error403-15](./img-output/no15_403_2.png)
+      <br>
+      ![error403-15](./img-output/no15_403_3.png)
+
 ## NO 16
+
+- ABIMANYU
+  -Script
+
+  ```bash
+  # nano /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+  echo -e '
+  <VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/parikesit.abimanyu.e11
+    ServerName parikesit.abimanyu.e11.com
+    ServerAlias www.parikesit.abimanyu.e11.com
+
+    <Directory /var/www/parikesit.abimanyu.e11/public>
+            Options +Indexes
+    </Directory>
+
+    <Directory /var/www/parikesit.abimanyu.e11/secret>
+            Options -Indexes
+    </Directory>
+
+    Alias "/public" "/var/www/parikesit.abimanyu.e11/public"
+    Alias "/secret" "/var/www/parikesit.abimanyu.e11/secret"
+    Alias "/js" "/var/www/parikesit.abimanyu.e11/public/js"
+
+    ErrorDocument 404 /error/404.html
+    ErrorDocument 403 /error/403.html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+  </VirtualHost>
+  ' > /etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf
+
+  service apache2 restart
+  ```
+
+  - Update konfigurasi website dengan menambahkan ServerAlias dan alias `/js` pada file `/etc/apache2/sites-available/parikesit.abimanyu.e11.com.conf`:
+    ```bash
+    ...
+    ...
+    ServerAlias www.parikesit.abimanyu.e11.com
+    ...
+    ...
+    ...
+    Alias "/js" "/var/www/parikesit.abimanyu.e11/public/js"
+    ```
+    Kita hanya perlu menggunakan Alias "/js" pada "/var/www/parikesit.abimanyu.e11/public/js" untuk mengubah virtual host agar file tersebut menjadi lebih singkat. Kami juga ServerName dan ServerAlias agar virtual host dapat berjalan.
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+    ```bash
+    lynx parikesit.abimanyu.e11.com/js
+    ```
+    - Output
+      <br>
+      ![js16](./img-output/no16_1.png)
+      <br>
+      ![js16](./img-output/no16_2.png)
 
 ## NO 17
 
