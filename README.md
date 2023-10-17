@@ -841,149 +841,157 @@ Membuat topologi 5
     ```
 
 ## NO 7
+
 - Node Yudhistira
-    - Edit file zona domain utama:
-        ```bash
-        nano /etc/bind/jarkom/abimanyu.e11.com
-        ```
-        ```bash
-        ;
-        ; BIND data file for local loopback interface
-        ;
-        $TTL    604800
-        @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
-                                    2           ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-        ;
-        @               IN      NS      abimanyu.e11.com.
-        @               IN      A       10.42.3.3       ; IP ABIMANYU
-        www             IN      CNAME   abimanyu.e11.com.
-        parikesit       IN      A       10.42.3.3       ; IP ABIMANYU
-        ns1             IN      A       10.42.2.3       ; IP WERKUDARA
-        baratayuda      IN      NS      ns1
-        @               IN      AAAA    ::1
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/f3605636-6a2b-49a5-a75e-258bedb64dbd)
-    - Sesuaikan opsi BIND untuk memperbolehkan query dari mana saja:
-        ```bash
-        nano /etc/bind/named.conf.options
-        ```
-        ```bash
-        options {
-            directory "/var/cache/bind";
 
-            // If there is a firewall between you and nameservers you want
-            // to talk to, you may need to fix the firewall to allow multiple
-            // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+  - Edit file zona domain utama:
+    ```bash
+    nano /etc/bind/jarkom/abimanyu.e11.com
+    ```
+    ```bash
+    ;
+    ; BIND data file for local loopback interface
+    ;
+    $TTL    604800
+    @       IN      SOA     abimanyu.e11.com. root.abimanyu.e11.com. (
+                                2           ; Serial
+                            604800          ; Refresh
+                            86400           ; Retry
+                            2419200         ; Expire
+                            604800 )        ; Negative Cache TTL
+    ;
+    @               IN      NS      abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   abimanyu.e11.com.
+    parikesit       IN      A       10.42.3.3       ; IP ABIMANYU
+    ns1             IN      A       10.42.2.3       ; IP WERKUDARA
+    baratayuda      IN      NS      ns1
+    @               IN      AAAA    ::1
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/f3605636-6a2b-49a5-a75e-258bedb64dbd)
+  - Sesuaikan opsi BIND untuk memperbolehkan query dari mana saja:
 
-            // If your ISP provided one or more IP addresses for stable
-            // nameservers, you probably want to use them as forwarders.
-            // Uncomment the following block, and insert the addresses replacing
-            // the all-0s placeholder.
+    ```bash
+    nano /etc/bind/named.conf.options
+    ```
 
-            // forwarders {
-            //      0.0.0.0;
-            // };
+    ```bash
+    options {
+        directory "/var/cache/bind";
 
-            //=====================================================================$
-            // If BIND logs error messages about the root key being expired,
-            // you will need to update your keys.  See https://www.isc.org/bind-keys
-            //=====================================================================$
-            // dnssec-validation auto;
-            allow-query{any;};
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
 
-            auth-nxdomain no;    # conform to RFC1035
-            listen-on-v6 { any; };
-        };
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2c81ba01-359a-419c-99d5-d7ae82d1961d)
-    - Update file konfigurasi lokal untuk mengizinkan transfer zona ke Werkudara:
-        ```bash
-        nano /etc/bind/named.conf.local
-        ```
-        ```bash
-        zone "abimanyu.e11.com" {
-            type master;
-            # notify yes;
-            # also-notify { 10.42.2.3; }; // Masukan IP Werkudara
-            allow-transfer { 10.42.2.3; }; // Masukan IP Werkudara
-            file "/etc/bind/jarkom/abimanyu.e11.com";
-        };
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/182e47fc-59b1-4591-94a5-abc4a8100528)
-    - Restart service BIND9:
-        ```bash
-        service bind9 restart
-        ```
+        // If your ISP provided one or more IP addresses for stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0s placeholder.
+
+        // forwarders {
+        //      0.0.0.0;
+        // };
+
+        //=====================================================================$
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //=====================================================================$
+        // dnssec-validation auto;
+        allow-query{any;};
+
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on-v6 { any; };
+    };
+    ```
+
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2c81ba01-359a-419c-99d5-d7ae82d1961d)
+
+  - Update file konfigurasi lokal untuk mengizinkan transfer zona ke Werkudara:
+    ```bash
+    nano /etc/bind/named.conf.local
+    ```
+    ```bash
+    zone "abimanyu.e11.com" {
+        type master;
+        # notify yes;
+        # also-notify { 10.42.2.3; }; // Masukan IP Werkudara
+        allow-transfer { 10.42.2.3; }; // Masukan IP Werkudara
+        file "/etc/bind/jarkom/abimanyu.e11.com";
+    };
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/182e47fc-59b1-4591-94a5-abc4a8100528)
+  - Restart service BIND9:
+    ```bash
+    service bind9 restart
+    ```
 
 - Node Werkudara
-    - Sesuaikan opsi BIND untuk memperbolehkan query dari mana saja:
-        ```bash
-        nano /etc/bind/named.conf.options
-        ```
-        ```bash
-        allow-query{any;};
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/8519b005-fa6b-479c-81b1-7cf4f3f67b81)
-    - Tambahkan zona baru untuk `baratayuda.abimanyu.e11.com` sebagai master zone:
-        ```bash
-        nano /etc/bind/named.conf.local
-        ```
-        ```bash
-        zone "baratayuda.abimanyu.e11.com" {
-            type master;
-            file "/etc/bind/baratayuda/baratayuda.abimanyu.e11.com";
-        };
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/9625646c-07e1-4974-9942-2556e9cb9dd4)
-    - Buat direktori baru untuk file konfigurasi subdomain dan salin template database BIND:
-        ```bash
-        mkdir /etc/bind/baratayuda
-        ```
-        ```bash
-        cp /etc/bind/db.local /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
-        ```
-    - Konfigurasikan file zona untuk subdomain `baratayuda.abimanyu.e11.com`:
-        ```bash
-        nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
-        ```
-        ```bash
-        ;
-        ; BIND data file for subdomain baratayuda.abimanyu.e11.com
-        ;ping
-        $TTL    604800
-        @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
-                                    2         ; Serial
-                                604800         ; Refresh
-                                86400         ; Retry
-                                2419200         ; Expire
-                                604800 )       ; Negative Cache TTL
-        ;
-        @               IN      NS      baratayuda.abimanyu.e11.com.
-        @               IN      A       10.42.3.3       ; IP ABIMANYU
-        www             IN      CNAME   baratayuda.abimanyu.e11.com
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/eb899999-502e-4d19-8cd9-fdb11044a5cf)
-    - Restart service BIND9:
-        ```bash
-        service bind9 restart
-        ```
-- Testing di Node Nakula dan Sadewa
+  - Sesuaikan opsi BIND untuk memperbolehkan query dari mana saja:
     ```bash
-    ping baratayuda.abimanyu.e11.com -c 5
-    ping baratayuda.abimanyu.e11.com
-    ping www.baratayuda.abimanyu.e11.com
+    nano /etc/bind/named.conf.options
     ```
-    - Nakula
+    ```bash
+    allow-query{any;};
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/8519b005-fa6b-479c-81b1-7cf4f3f67b81)
+  - Tambahkan zona baru untuk `baratayuda.abimanyu.e11.com` sebagai master zone:
+    ```bash
+    nano /etc/bind/named.conf.local
+    ```
+    ```bash
+    zone "baratayuda.abimanyu.e11.com" {
+        type master;
+        file "/etc/bind/baratayuda/baratayuda.abimanyu.e11.com";
+    };
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/9625646c-07e1-4974-9942-2556e9cb9dd4)
+  - Buat direktori baru untuk file konfigurasi subdomain dan salin template database BIND:
+    ```bash
+    mkdir /etc/bind/baratayuda
+    ```
+    ```bash
+    cp /etc/bind/db.local /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    ```
+  - Konfigurasikan file zona untuk subdomain `baratayuda.abimanyu.e11.com`:
+    ```bash
+    nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    ```
+    ```bash
+    ;
+    ; BIND data file for subdomain baratayuda.abimanyu.e11.com
+    ;ping
+    $TTL    604800
+    @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
+                                2         ; Serial
+                            604800         ; Refresh
+                            86400         ; Retry
+                            2419200         ; Expire
+                            604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      baratayuda.abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   baratayuda.abimanyu.e11.com
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/eb899999-502e-4d19-8cd9-fdb11044a5cf)
+  - Restart service BIND9:
+    ```bash
+    service bind9 restart
+    ```
+- Testing di Node Nakula dan Sadewa
 
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/84152f75-f769-442f-b5f2-0a229aab5bb0)
+  ```bash
+  ping baratayuda.abimanyu.e11.com -c 5
+  ping baratayuda.abimanyu.e11.com
+  ping www.baratayuda.abimanyu.e11.com
+  ```
 
-    - Sadewa
+  - Nakula
 
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/0d25d708-8517-4ffa-acf6-6a30d8292712)
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/84152f75-f769-442f-b5f2-0a229aab5bb0)
+
+  - Sadewa
+
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/0d25d708-8517-4ffa-acf6-6a30d8292712)
 
 - SCRIPT
 
@@ -1011,44 +1019,44 @@ Membuat topologi 5
     baratayuda      IN      NS      ns1
     @               IN      AAAA    ::1
     ' > /etc/bind/jarkom/abimanyu.e11.com
-    
+
     # nano /etc/bind/named.conf.options
     echo '
     options {
             directory "/var/cache/bind";
-    
+
             // If there is a firewall between you and nameservers you want
             // to talk to, you may need to fix the firewall to allow multiple
             // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
-    
+
             // If your ISP provided one or more IP addresses for stable
             // nameservers, you probably want to use them as forwarders.
             // Uncomment the following block, and insert the addresses replacing
             // the all-0s placeholder.
-    
+
             // forwarders {
             //      0.0.0.0;
             // };
-    
+
             //=====================================================================$
             // If BIND logs error messages about the root key being expired,
             // you will need to update your keys.  See https://www.isc.org/bind-keys
             //=====================================================================$
             // dnssec-validation auto;
             allow-query{any;};
-    
+
             auth-nxdomain no;    # conform to RFC1035
             listen-on-v6 { any; };
-    };       
+    };
     ' > /etc/bind/named.conf.options
-    
-    # nano /etc/bind/named.conf.local 
+
+    # nano /etc/bind/named.conf.local
     echo '
-    zone "arjuna.e11.com" { 
-        type master; 
+    zone "arjuna.e11.com" {
+        type master;
         file "/etc/bind/jarkom/arjuna.e11.com";
     };
-    
+
     zone "abimanyu.e11.com" {
         type master;
         # notify yes;
@@ -1056,13 +1064,13 @@ Membuat topologi 5
         allow-transfer { 10.42.2.3; }; // Masukan IP Werkudara
         file "/etc/bind/jarkom/abimanyu.e11.com";
     };
-    
+
     zone "2.42.10.in-addr.arpa" {
         type master;
         file "/etc/bind/jarkom/2.42.10.in-addr.arpa";
     };
     ' > /etc/bind/named.conf.local
-    
+
     service bind9 restart
     ```
 
@@ -1073,32 +1081,32 @@ Membuat topologi 5
     echo '
     options {
             directory "/var/cache/bind";
-    
+
             // If there is a firewall between you and nameservers you want
             // to talk to, you may need to fix the firewall to allow multiple
             // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
-    
+
             // If your ISP provided one or more IP addresses for stable
             // nameservers, you probably want to use them as forwarders.
             // Uncomment the following block, and insert the addresses replacing
             // the all-0s placeholder.
-    
+
             // forwarders {
             //      0.0.0.0;
             // };
-    
+
             //=====================================================================$
             // If BIND logs error messages about the root key being expired,
             // you will need to update your keys.  See https://www.isc.org/bind-keys
             //=====================================================================$
             // dnssec-validation auto;
             allow-query{any;};
-    
+
             auth-nxdomain no;    # conform to RFC1035
             listen-on-v6 { any; };
-        };       
+        };
     ' > /etc/bind/named.conf.options
-    
+
     # nano /etc/bind/named.conf.local
     echo '
     zone "abimanyu.e11.com" {
@@ -1106,18 +1114,18 @@ Membuat topologi 5
         masters { 10.42.2.2; }; // Masukan IP Yudhistira
         file "/var/lib/bind/abimanyu.e11.com";
     };
-    
+
     zone "baratayuda.abimanyu.e11.com" {
         type master;
         file "/etc/bind/baratayuda/baratayuda.abimanyu.e11.com";
     };
     ' > /etc/bind/named.conf.local
-    
+
     # buat direktori
     mkdir /etc/bind/baratayuda
-    
+
     cp /etc/bind/db.local /etc/bind/delegasi/baratayuda.abimanyu.e11.com
-    
+
     # nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
     echo '
     ;
@@ -1135,7 +1143,7 @@ Membuat topologi 5
     @               IN      A       10.42.3.3       ; IP ABIMANYU
     www             IN      CNAME   baratayuda.abimanyu.e11.com.
     ' > /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
-    
+
     service bind9 restart
     ```
 
@@ -1146,49 +1154,52 @@ Membuat topologi 5
     ping baratayuda.abimanyu.e11.com
     ping www.baratayuda.abimanyu.e11.com
     ```
-    
-## NO 8
-- Node Werkudara
-    - Edit file konfigurasi untuk subdomain `baratayuda.abimanyu.e11.com`:
-        ```bash
-        nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
-        ```
-        ```bash
-        ;
-        ; BIND data file for subdomain baratayuda.abimanyu.e11.com
-        ;ping
-        $TTL    604800
-        @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
-                                    2         ; Serial
-                                604800         ; Refresh
-                                86400         ; Retry
-                                2419200         ; Expire
-                                604800 )       ; Negative Cache TTL
-        ;
-        @               IN      NS      baratayuda.abimanyu.e11.com.
-        @               IN      A       10.42.3.3       ; IP ABIMANYU
-        www             IN      CNAME   baratayuda.abimanyu.e11.com.
-        rjp             IN      A       10.42.3.3       ; IP ABIMANYU
-        www.rjp         IN      CNAME   rjp.baratayuda.abimanyu.e11.com.
-        ```
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2be42eed-e8f4-4437-a562-b6fecec7239f)
-    - Restart service BIND9 untuk mengaplikasikan perubahan:
-        ```bash
-            service bind9 restart
-        ```
 
-- Testing di Node Nakula dan Sadewa
+## NO 8
+
+- Node Werkudara
+
+  - Edit file konfigurasi untuk subdomain `baratayuda.abimanyu.e11.com`:
     ```bash
-    ping rjp.baratayuda.abimanyu.e11.com
+    nano /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
+    ```
+    ```bash
+    ;
+    ; BIND data file for subdomain baratayuda.abimanyu.e11.com
+    ;ping
+    $TTL    604800
+    @       IN      SOA     baratayuda.abimanyu.e11.com. root.baratayuda.abimanyu.e11.com. (
+                                2         ; Serial
+                            604800         ; Refresh
+                            86400         ; Retry
+                            2419200         ; Expire
+                            604800 )       ; Negative Cache TTL
+    ;
+    @               IN      NS      baratayuda.abimanyu.e11.com.
+    @               IN      A       10.42.3.3       ; IP ABIMANYU
+    www             IN      CNAME   baratayuda.abimanyu.e11.com.
+    rjp             IN      A       10.42.3.3       ; IP ABIMANYU
+    www.rjp         IN      CNAME   rjp.baratayuda.abimanyu.e11.com.
+    ```
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/2be42eed-e8f4-4437-a562-b6fecec7239f)
+  - Restart service BIND9 untuk mengaplikasikan perubahan:
+    ```bash
+        service bind9 restart
     ```
 
-    -  Nakula
+- Testing di Node Nakula dan Sadewa
 
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d83e5335-5045-40ed-a091-cb508a4ff817)
+  ```bash
+  ping rjp.baratayuda.abimanyu.e11.com
+  ```
 
-    - Sadewa
+  - Nakula
 
-        ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/beef1e3b-193d-4268-9f76-8bb8f0298a27)
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/d83e5335-5045-40ed-a091-cb508a4ff817)
+
+  - Sadewa
+
+    ![image](https://github.com/tsabitapr/Jarkom-Modul-2-E11-2023/assets/93377643/beef1e3b-193d-4268-9f76-8bb8f0298a27)
 
 - SCRIPT
 
@@ -1214,7 +1225,7 @@ Membuat topologi 5
     rjp             IN      A       10.42.3.3       ; IP ABIMANYU
     www.rjp         IN      CNAME   rjp.baratayuda.abimanyu.e11.com.
     ' > /etc/bind/baratayuda/baratayuda.abimanyu.e11.com
-    
+
     service bind9 restart
     ```
 
@@ -1225,6 +1236,186 @@ Membuat topologi 5
     ```
 
 ## NO 9
+
+- ARJUNA (LOAD-BALANCER)
+
+  - Script
+
+    ```bash
+    # LOAD BALANCER
+    # simpan di bashrc
+    # apt-get update
+    # apt-get install nginx -y
+
+    service nginx start
+    service nginx status
+
+    # nano /etc/nginx/sites-available/loadb-jarkom
+    echo 'upstream worker {
+      server 10.42.3.2; # IP Prabukusuma
+      server 10.42.3.3; # IP Abimanyu
+      server 10.42.3.4; # IP Wisanggeni
+    }
+
+    server {
+      listen 80;
+      server_name arjuna.e11.com www.arjuna.e11.com;
+
+      location / {
+        proxy_pass http://worker;
+      }
+    }
+    ' > /etc/nginx/sites-available/loadb-jarkom
+
+    # simpan symlink
+    ln -s /etc/nginx/sites-available/loadb-jarkom /etc/nginx/   sites-enabled/loadb-jarkom
+
+    rm -rf /etc/nginx/sites-enabled/default
+
+    service nginx restart
+    nginx -t
+    ```
+
+    - Untuk soal no 9, node arjuna membutuhkan installasi nginx, jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi nginx lagi.
+    - Start nginx dan cek statusnya.
+      ```bash
+      service nginx start
+      service nginx status
+      ```
+    - Kemudian perlu membuat file baru yaitu `loadb-jarkom` pada directory `/etc/nginx/sites-available/` dan melakukan konfigurasi IP worker seperti code di atas.
+    - Simpan symlink dengan cara
+      ```bash
+      ln -s /etc/nginx/sites-available/loadb-jarkom /etc/nginx/     sites-enabled/loadb-jarkom
+      ```
+    - Agar port tidak bertabrakan dengan `default` maka hapus file `default` tersebut
+      ```bash
+      rm -rf /etc/nginx/sites-enabled/default
+      ```
+    - Restart nginx setiap kali melakukan perubahan pada konfigurasi dan lakukan pengecekan syntax konfigurasi dengan `nginx -t`.
+
+  <br>
+
+- PRABUKUSUMA, ABIMANYU, WISANGGENI (WORKER)
+
+  - Script
+
+    ```bash
+    # simpan di bashrc
+    # apt-get update
+    # apt-get install nginx -y
+    # apt-get install php php-fpm -y
+
+    # apt-get install wget -y
+    # apt-get install unzip -y
+
+    # Download dan unzip file
+    wget -O '/var/www/arjuna.e11.com.zip' 'https://drive.   usercontent.google.com/download?  id=17tAM_XDKYWDvF-JJix1x7txvTBEax7vX'
+    unzip -o /var/www/arjuna.e11.com.zip -d /var/www/
+    mv /var/www/arjuna.yyy.com /var/www/jarkom
+    rm -rf /var/www/arjuna.e11.com.zip
+
+    service nginx start
+    service nginx status
+    service php7.0-fpm start
+
+    # nano /etc/nginx/sites-available/jarkom
+    echo '
+     server {
+
+     	listen 80;
+
+     	root /var/www/jarkom;
+
+     	index index.php index.html index.htm index.nginx-debian.html;
+     	server_name _;
+     	location / {
+     			try_files $uri $uri/ /index.php?$query_string;
+     	}
+
+     	# pass PHP scripts to FastCGI server
+     	location ~ \.php$ {
+     	        include snippets/fastcgi-php.conf;
+     	        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+     	}
+
+        location ~ /\.ht {
+     			deny all;
+     	}
+
+     	error_log /var/log/nginx/jarkom_error.log;
+     	access_log /var/log/nginx/jarkom_access.log;
+     }
+    ' > /etc/nginx/sites-available/jarkom
+
+    # buat symlink
+    ln -s /etc/nginx/sites-available/jarkom /etc/nginx/   sites-enabled/jarkom
+
+    rm -rf /etc/nginx/sites-enabled/default
+
+    service nginx restart
+    nginx -t
+    ```
+
+    - Untuk soal no 9 dan nomor selanjutnya, node worker membutuhkan installasi nginx, php, wget, dan unzip. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
+    - Download resource yang perlu ditampilkan dengan, file ini juga akan digunakan untuk soal nomor 10:
+      ```bash
+      wget -O '/var/www/arjuna.e11.com.zip' 'https://drive.   usercontent.google.com/download?  id=17tAM_XDKYWDvF-JJix1x7txvTBEax7vX'
+      unzip -o /var/www/arjuna.e11.com.zip -d /var/www/
+      mv /var/www/arjuna.yyy.com /var/www/jarkom
+      rm -rf /var/www/arjuna.e11.com.zip
+      ```
+    - Start service nginx dan php
+    - Buat file `jarkom` pada `/etc/nginx/sites-available/` untuk menyimpan konfigurasi site yang tertera pada code di atas.
+    - Buat symlink
+      ```bash
+      ln -s /etc/nginx/sites-available/jarkom /etc/nginx/   sites-enabled/jarkom
+      ```
+    - Agar port tidak bertabrakan dengan `default` maka hapus file `default` tersebut
+      ```bash
+      rm -rf /etc/nginx/sites-enabled/default
+      ```
+    - Restart nginx setiap kali melakukan perubahan pada konfigurasi dan lakukan pengecekan syntax konfigurasi dengan `nginx -t`.
+
+  <br>
+
+- TESTING DI CLIENT
+  - NAKULA & SADEWA
+    - Script
+      ```bash
+      # simpan di bashrc
+      # apt-get install lynx -y
+      # prabukusuma
+      lynx http://10.42.3.2
+      # abimanyu
+      lynx http://10.42.3.3
+      # wisanggeni
+      lynx http://10.42.3.4
+      # arjuna
+      lynx http://arjuna.e11.com
+      ```
+      - Diperlukan installasi lynx untuk menampilkan output yang diinginkan. Jika sudah melakukan konfigurasi pada `/root/.bashrc` maka tidak perlu melakukan installasi lagi.
+      - Output node arjuna akan berganti-ganti antara ketiga worker
+
+      - Prabukusuma
+        <br>
+        `lynx http://10.42.3.2`
+        <br>
+        ![prabukusuma9](./img-output/no9_prabukusuma.png)
+      - Abimanyu
+        <br>
+        `lynx http://10.42.3.3`
+        <br>
+        ![abimanyu9](./img-output/no9_abimanyu.png)
+      - Wisanggeni
+        <br>
+        `lynx http://10.42.3.4`
+        <br>
+        ![abimanyu9](./img-output/no9_wisanggeni.png)
+      - Arjuna
+        <br>
+        `lynx http://10.42.3.5` atau `lynx http://arjuna.e11.com`
+        <br>
+        ![abimanyu9](./img-output/no9_abimanyu.png)
 
 ## NO 10
 
